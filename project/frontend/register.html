@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Регистрация</title>
+    <link rel="stylesheet" href="register.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <!-- Логотип в левом верхнем углу -->
+    <div class="logo-header">
+        <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+    </div>
+
+    <!-- Основной контент -->
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Регистрация</h1>
+                    <p>Создайте аккаунт для доступа к системе</p>
+                </div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="login">Login</label>
+                        <input type="text" id="login" class="form-input" placeholder="login" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="example@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" class="form-input" placeholder="Придумайте пароль" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm-password">Подтвердите пароль</label>
+                        <input type="password" id="confirm-password" class="form-input" placeholder="Повторите пароль" required>
+                    </div>
+
+                    <div id="message" style="color: rgb(0, 140, 255); margin: 15px 0; text-align: center; display: none;"></div>
+
+                    <button type="submit" class="submit-btn">
+                        Зарегистрироваться
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>Уже есть аккаунт? <a href="login.html">Войти</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // URL API сервера
+        const API_URL = 'http://localhost:3000/api';
+        
+        // Показать сообщение
+        function showMessage(text, type = 'error') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.style.color = type === 'success' ? 'blue' : 'red';
+            messageEl.style.display = 'block';
+        }
+
+        // Обработка формы регистрации
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('login').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+            
+            // Валидация
+            if (!username || !email || !password || !confirmPassword) {
+                showMessage('Заполните все поля');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showMessage('Пароли не совпадают');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showMessage('Пароль должен быть не менее 6 символов');
+                return;
+            }
+            
+            try {
+                // Показываем загрузку
+                const submitBtn = document.querySelector('.submit-btn');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Регистрация...';
+                submitBtn.disabled = true;
+                
+                // Отправляем запрос на сервер
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, email, password })
+                });
+                
+                const data = await response.json();
+                
+                // Восстанавливаем кнопку
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    showMessage('Регистрация успешна!', 'success');
+                    
+                    // Сохраняем данные пользователя
+                    localStorage.setItem('expert_test_user', JSON.stringify(data.user));
+                    localStorage.setItem('expert_test_token', data.token);
+                    
+                    // Через 2 секунды переходим на страницу тестирования
+                    setTimeout(() => {
+                        window.location.href = 'test.html';
+                    }, 2000);
+                    
+                } else {
+                    showMessage(data.message);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('Ошибка соединения с сервером');
+                
+                // Восстанавливаем кнопку
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.textContent = 'Зарегистрироваться';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Проверяем, если уже авторизован - перенаправляем
+        window.onload = function() {
+            const token = localStorage.getItem('expert_test_token');
+            if (token) {
+                window.location.href = 'test.html';
+            }
+        };
+    </script>
+</body>
+</html>

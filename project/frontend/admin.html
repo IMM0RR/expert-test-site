@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Админ-панель</title>
+    <link rel="stylesheet" href="admin.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-text">ЭКСПЕРТ-ТЕСТ | Админ</span>
+            </div>
+            <div class="header-actions">
+                <a href="profile.html" class="back-btn">← Назад в профиль</a>
+                <button class="logout-btn" id="logoutBtn">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="admin-main">
+        <!-- Статистика -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2>Статистика системы</h2>
+                <p class="section-subtitle">Общая информация о системе</p>
+            </div>
+            <div class="stats-grid" id="statsContainer">
+                <!-- Статистика загрузится через JS -->
+                <div class="loading">Загрузка статистики...</div>
+            </div>
+        </section>
+
+        <!-- Управление вопросами -->
+        <section class="admin-section">
+            <div class="section-header">
+                <h2>Управление вопросами</h2>
+                <p class="section-subtitle">Создание и редактирование вопросов теста</p>
+                <button class="add-btn" id="addQuestionBtn">+ Добавить вопрос</button>
+            </div>
+
+            <!-- Форма добавления вопроса -->
+            <div class="form-container" id="questionForm" style="display: none;">
+                <h3>Добавить новый вопрос</h3>
+                <form id="newQuestionForm">
+                    <div class="form-group">
+                        <label for="questionText">Текст вопроса *</label>
+                        <textarea id="questionText" class="form-input" rows="3" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="competence">Компетенция *</label>
+                        <select id="competence" class="form-input" required>
+                            <option value="">Выберите компетенцию</option>
+                            <option value="цифровая грамотность">Цифровая грамотность</option>
+                            <option value="цифровые коммуникации">Цифровые коммуникации</option>
+                            <option value="цифровая безопасность">Цифровая безопасность</option>
+                            <option value="цифровое потребление">Цифровое потребление</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="questionType">Тип вопроса</label>
+                        <select id="questionType" class="form-input">
+                            <option value="single_choice">Один правильный ответ</option>
+                            <option value="multiple_choice">Несколько правильных ответов</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Сохранить вопрос</button>
+                        <button type="button" class="cancel-btn" onclick="hideQuestionForm()">Отмена</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список вопросов -->
+            <div class="questions-list" id="questionsList">
+                <div class="loading">Загрузка вопросов...</div>
+            </div>
+        </section>
+
+        <!-- Управление ответами -->
+        <section class="admin-section" id="answersSection" style="display: none;">
+            <div class="section-header">
+                <h3 id="answersTitle">Ответы для вопроса #</h3>
+                <button class="add-btn" id="addAnswerBtn">+ Добавить ответ</button>
+            </div>
+
+            <!-- Форма добавления ответа -->
+            <div class="form-container" id="answerForm" style="display: none;">
+                <h4>Добавить ответ</h4>
+                <form id="newAnswerForm">
+                    <input type="hidden" id="currentQuestionId">
+                    
+                    <div class="form-group">
+                        <label for="answerText">Текст ответа *</label>
+                        <textarea id="answerText" class="form-input" rows="2" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="isCorrect">
+                            <span>Правильный ответ</span>
+                        </label>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="submit-btn">Сохранить ответ</button>
+                        <button type="button" class="cancel-btn" onclick="hideAnswerForm()">Отмена</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Список ответов -->
+            <div class="answers-list" id="answersList">
+                <!-- Ответы загружаются динамически -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Модальное окно подтверждения -->
+    <div class="modal" id="confirmModal" style="display: none;">
+        <div class="modal-content">
+            <h3 id="modalTitle">Подтверждение</h3>
+            <p id="modalMessage">Вы уверены?</p>
+            <div class="modal-actions">
+                <button class="danger-btn" id="confirmBtn">Да</button>
+                <button class="cancel-btn" id="cancelBtn">Нет</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сообщения -->
+    <div class="message" id="message" style="display: none;"></div>
+
+    <!-- Подключение JS -->
+    <script src="admin.js"></script>
+</body>
+</html>

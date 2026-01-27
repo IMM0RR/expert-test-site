@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Результаты теста</title>
+    <link rel="stylesheet" href="results.css">
+    <link rel="icon" href="logo.png">
+    <!-- Chart.js для диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+            </div>
+            <div class="header-actions">
+                <a href="profile.html" class="back-btn">← В профиль</a>
+                <a href="test.html" class="retake-btn">Пройти еще раз</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="results-main">
+        <div class="results-container">
+            <!-- Заголовок -->
+            <div class="results-header">
+                <h1>Результаты тестирования</h1>
+                <p id="testDate">Дата прохождения: загрузка...</p>
+            </div>
+
+            <!-- Основные метрики -->
+            <div class="main-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalScore">0</div>
+                    <div class="metric-label">Правильных ответов</div>
+                    <div class="metric-sub" id="totalQuestions">из 0 вопросов</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="percentage">0%</div>
+                    <div class="metric-label">Общий результат</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="completionTime">-</div>
+                    <div class="metric-label">Время завершения</div>
+                </div>
+            </div>
+
+            <!-- Диаграмма компетенций -->
+            <section class="section">
+                <h2>Результаты по компетенциям</h2>
+                <p class="section-subtitle">Наглядное представление ваших знаний в каждой области</p>
+                
+                <div class="chart-container">
+                    <canvas id="competenceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Детали по компетенциям -->
+            <section class="section">
+                <h2>Детальный анализ</h2>
+                <p class="section-subtitle">Подробные результаты по каждой компетенции</p>
+                
+                <div class="competence-details" id="competenceDetails">
+                    <!-- Загрузка через JS -->
+                </div>
+            </section>
+
+            <!-- История ответов -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>История ответов</h2>
+                    <div class="history-stats">
+                        <span class="correct-count" id="correctCount">0 правильных</span>
+                        <span class="incorrect-count" id="incorrectCount">0 неправильных</span>
+                    </div>
+                </div>
+                <p class="section-subtitle">Подробный разбор ваших ответов</p>
+                
+                <div class="answers-history" id="answersHistory">
+                    <!-- История загрузится через JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Сообщения -->
+    <div id="message" class="message" style="display: none;"></div>
+
+    <script src="results.js"></script>
+</body>
+</html>

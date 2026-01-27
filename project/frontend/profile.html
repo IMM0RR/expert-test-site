@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Профиль</title>
+    <link rel="stylesheet" href="profile.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+            </div>
+            <div class="header-actions">
+                <a href="test.html" class="back-btn">На главную</a>
+                <button class="logout-btn" id="logoutBtn">Выйти</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="profile-main">
+        <div class="profile-container">
+            <!-- Левая колонка: Информация о пользователе -->
+            <div class="profile-sidebar">
+                <div class="user-card">
+                    <div class="user-avatar">
+                        <div class="avatar-placeholder" id="userInitials">ИИ</div>
+                    </div>
+                    <div class="user-info">
+                        <h2 class="user-name" id="userUsername">ivanov_ii</h2>
+                        <p class="user-email" id="userEmail">ivanov@email.com</p>
+                    </div>
+                </div>
+
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="avgResult">0%</div>
+                        <div class="stat-label">Средний результат</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="testsCompleted">0</div>
+                        <div class="stat-label">Пройдено тестов</div>
+                    </div>
+                </div>
+
+
+                <div id="adminSection" class="admin-section" style="display: none;">
+                    <div class="admin-access">
+                        <h3>Административный доступ</h3>
+                        <a href="admin.html" class="admin-btn">Перейти в админ-панель</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Правая колонка: История тестов -->
+            <div class="profile-content">
+                <div class="profile-header">
+                    <h1>История тестирования</h1>
+                    <p>Результаты ваших попыток прохождения тестов</p>
+                </div>
+
+                <div class="test-history" id="testHistory">
+                    <!-- История будет загружена через JavaScript -->
+                    <div class="no-history">
+                        <p>Пока нет пройденных тестов</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Тот же самый JavaScript код (без изменений) -->
+    <script>
+        // URL API сервера
+        const API_URL = 'http://localhost:3000/api';
+
+        // Проверка авторизации и загрузка данных
+        document.addEventListener('DOMContentLoaded', async function() {
+            const token = localStorage.getItem('expert_test_token');
+            const userData = localStorage.getItem('expert_test_user');
+            
+            if (!token || !userData) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // Проверка на админа
+            const user = JSON.parse(userData);
+            if (user && user.role === 'admin') {
+                document.getElementById('adminSection').style.display = 'block';
+            }
+            
+            try {
+                // Загружаем профиль с сервером (новый эндпоинт)
+                const response = await fetch(`${API_URL}/profile`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.status === 401) {
+                    logout();
+                    return;
+                }
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Обновляем данные на странице
+                    updateProfileData(data.user);
+                    updateStats(data.stats);
+                    displayTestHistory(data.testHistory);
+                } else {
+                    console.error('Ошибка загрузки профиля:', data.message);
+                    // Загружаем данные из localStorage
+                    const localUser = JSON.parse(userData);
+                    updateProfileData(localUser);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                // Показываем данные из localStorage
+                const localUser = JSON.parse(userData);
+                updateProfileData(localUser);
+                loadTestHistoryFallback();
+            }
+        });
+        
+        // Обновление данных профиля на странице
+        function updateProfileData(user) {
+            document.getElementById('userUsername').textContent = user.username || 'Пользователь';
+            document.getElementById('userEmail').textContent = user.email || 'email@example.com';
+            
+            const initials = getInitials(user.username || user.email);
+            document.getElementById('userInitials').textContent = initials;
+            
+            localStorage.setItem('expert_test_user', JSON.stringify(user));
+        }
+        
+        // Обновление статистики
+        function updateStats(stats) {
+            document.getElementById('avgResult').textContent = stats.avgResult + '%';
+            document.getElementById('testsCompleted').textContent = stats.testsCompleted;
+        }
+        
+        // Получение инициалов
+        function getInitials(text) {
+            if (!text) return 'ИИ';
+            
+            // Если email, берем часть до @
+            if (text.includes('@')) {
+                text = text.split('@')[0];
+            }
+            
+            // Берем первые две буквы
+            return text.substring(0, 2).toUpperCase();
+        }
+        
+        // Отображение истории тестов
+        function displayTestHistory(history) {
+            const historyContainer = document.getElementById('testHistory');
+            
+            if (!history || history.length === 0) {
+                historyContainer.innerHTML = `
+                    <div class="no-history">
+                        <p>История тестирования появится после прохождения тестов</p>
+                        <a href="test.html" class="start-test-btn">Начать тест</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            let historyHTML = '';
+            
+            history.forEach(test => {
+                const monthNames = {
+                    'January': 'янв',
+                    'February': 'фев', 
+                    'March': 'мар',
+                    'April': 'апр',
+                    'May': 'май',
+                    'June': 'июн',
+                    'July': 'июл',
+                    'August': 'авг',
+                    'September': 'сен',
+                    'October': 'окт',
+                    'November': 'ноя',
+                    'December': 'дек'
+                };
+                
+                const month = monthNames[test.dateParts?.month?.trim()] || test.dateParts?.month || '---';
+                const day = test.dateParts?.day || '--';
+                const year = test.dateParts?.year || '----';
+                
+                historyHTML += `
+                    <div class="history-item">
+                        <div class="history-date">
+                            <div class="date-day">${day}</div>
+                            <div class="date-month">${month}</div>
+                            <div class="date-year">${year}</div>
+                        </div>
+                        <div class="history-content">
+                            <h3>Тестирование #${test.id}</h3>
+                            <p>Завершено: ${test.date || 'Дата не указана'}</p>
+                            <div class="history-result">
+                                <div class="result-score">${test.percentage}%</div>
+                                <div class="result-details">${test.score} из ${test.total} правильных</div>
+                            </div>
+                        </div>
+                        <button class="history-details-btn" onclick="viewTestDetails(${test.id})">
+                            Подробнее
+                        </button>
+                    </div>
+                `;
+            });
+            
+            historyContainer.innerHTML = historyHTML;
+        }
+        
+        // Запасной вариант загрузки истории
+        function loadTestHistoryFallback() {
+            const historyContainer = document.getElementById('testHistory');
+            historyContainer.innerHTML = `
+                <div class="no-history">
+                    <p>Не удалось загрузить историю тестирования</p>
+                    <a href="test.html" class="start-test-btn">Начать тест</a>
+                </div>
+            `;
+        }
+        
+        // Просмотр деталей теста
+        async function viewTestDetails(testId) {
+            const token = localStorage.getItem('expert_test_token');
+            
+            try {
+                const response = await fetch(`${API_URL}/profile/test/${testId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Сохраняем данные теста для отображения на странице деталей
+                        localStorage.setItem('selectedTestDetails', JSON.stringify(data));
+                        
+                        // Открываем страницу деталей теста
+                        window.location.href = `test-details.html`;
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки деталей теста:', error);
+                showError('Не удалось загрузить детали теста');
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #ef4444;
+                color: white;
+                padding: 15px 25px;
+                border-radius: 8px;
+                z-index: 10000;
+            `;
+            errorDiv.textContent = message;
+            document.body.appendChild(errorDiv);
+        
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        // Выход из системы
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            logout();
+        });
+        
+        function logout() {
+            localStorage.removeItem('expert_test_user');
+            localStorage.removeItem('expert_test_token');
+            localStorage.removeItem('selectedTestDetails');
+            window.location.href = 'login.html';
+        }
+        
+        // Глобальные функции для кнопок
+        window.viewTestDetails = viewTestDetails;
+    </script>
+</body>
+</html>

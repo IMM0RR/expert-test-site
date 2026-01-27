@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Вход в аккаунт</title>
+    <link rel="stylesheet" href="login.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <!-- Логотип в левом верхнем углу -->
+    <div class="logo-header">
+        <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+    </div>
+
+    <!-- Основной контент -->
+    <main class="auth-main">
+        <div class="auth-container">
+            <div class="auth-card">
+                <div class="auth-header">
+                    <h1>Вход в аккаунт</h1>
+                    <p>Введите свои данные для доступа к системе</p>
+                </div>
+
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-input" placeholder="example@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" class="form-input" placeholder="Введите ваш пароль" required>
+                    </div>
+
+                    <div id="message" style="color: rgb(0, 140, 255); margin: 15px 0; text-align: center; display: none;"></div>
+
+                    <button type="submit" class="submit-btn">
+                        Войти в аккаунт
+                    </button>
+
+                    <div class="auth-footer">
+                        <p>Еще нет аккаунта? <a href="register.html">Зарегистрироваться</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // URL API сервера (ваш бэкенд)
+        const API_URL = 'http://localhost:3000/api';
+        
+        // Показать сообщение
+        function showMessage(text, type = 'error') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.style.color = type === 'success' ? 'blue' : 'red';
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Обработка формы входа
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                showMessage('Заполните все поля');
+                return;
+            }
+            
+            try {
+                // Показываем загрузку
+                const submitBtn = document.querySelector('.submit-btn');
+                const originalText = submitBtn.textContent;
+                submitBtn.textContent = 'Вход...';
+                submitBtn.disabled = true;
+                
+                // Отправляем запрос на сервер
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                // Восстанавливаем кнопку
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+                
+                if (data.success) {
+                    showMessage('Вход выполнен успешно!', 'success');
+                    
+                    // Сохраняем данные пользователя в localStorage
+                    localStorage.setItem('expert_test_user', JSON.stringify(data.user));
+                    localStorage.setItem('expert_test_token', data.token);
+                    
+                    // Через 1 секунду переходим на страницу тестирования
+                    setTimeout(() => {
+                        window.location.href = 'test.html';
+                    }, 1000);
+                    
+                } else {
+                    showMessage(data.message);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка:', error);
+                showMessage('Ошибка соединения с сервером');
+                
+                // Восстанавливаем кнопку
+                const submitBtn = document.querySelector('.submit-btn');
+                submitBtn.textContent = 'Войти в аккаунт';
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Проверяем, если уже авторизован - перенаправляем
+        window.onload = function() {
+            const token = localStorage.getItem('expert_test_token');
+            if (token) {
+                window.location.href = 'test.html';
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Детали теста</title>
+    <link rel="stylesheet" href="results.css">
+    <link rel="icon" href="logo.png">
+    <!-- Chart.js для диаграмм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Шапка -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+            </div>
+            <div class="header-actions">
+                <a href="profile.html" class="back-btn">← Назад к профилю</a>
+                <a href="test.html" class="retake-btn">Пройти новый тест</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="results-main">
+        <div class="results-container">
+            <!-- Заголовок -->
+            <div class="results-header">
+                <h1>Детали тестирования</h1>
+                <p id="testDate">Дата прохождения: загрузка...</p>
+            </div>
+
+            <!-- Основные метрики -->
+            <div class="main-metrics">
+                <div class="metric-card">
+                    <div class="metric-value" id="totalScore">0</div>
+                    <div class="metric-label">Правильных ответов</div>
+                    <div class="metric-sub" id="totalQuestions">из 0 вопросов</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="percentage">0%</div>
+                    <div class="metric-label">Общий результат</div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-value" id="completionTime">-</div>
+                    <div class="metric-label">Время завершения</div>
+                </div>
+            </div>
+
+            <!-- Диаграмма компетенций -->
+            <section class="section" id="competenceChartSection">
+                <h2>Результаты по компетенциям</h2>
+                <p class="section-subtitle">Наглядное представление знаний в каждой области</p>
+                
+                <div class="chart-container">
+                    <canvas id="competenceChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Детали по компетенциям -->
+            <section class="section" id="competenceDetailsSection">
+                <h2>Детальный анализ</h2>
+                <p class="section-subtitle">Подробные результаты по каждой компетенции</p>
+                
+                <div class="competence-details" id="competenceDetails">
+                    <!-- Загрузка через JS -->
+                </div>
+            </section>
+
+            <!-- История ответов -->
+            <section class="section" id="answersHistorySection">
+                <div class="section-header">
+                    <h2>История ответов</h2>
+                    <div class="history-stats">
+                        <span class="correct-count" id="correctCount">0 правильных</span>
+                        <span class="incorrect-count" id="incorrectCount">0 неправильных</span>
+                    </div>
+                </div>
+                <p class="section-subtitle">Подробный разбор ваших ответов</p>
+                
+                <div class="answers-history" id="answersHistory">
+                    <!-- История загрузится через JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Сообщения -->
+    <div id="message" class="message" style="display: none;"></div>
+
+    <script>
+        // URL API сервера
+        const API_URL = 'http://localhost:3000/api';
+        
+        // Chart.js
+        let competenceChart = null;
+
+        // Получение токена
+        function getToken() {
+            return localStorage.getItem('expert_test_token') || localStorage.getItem('token');
+        }
+
+        // Отображение сообщений
+        function showMessage(text, type = 'success') {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+            messageEl.style.display = 'block';
+            
+            setTimeout(() => {
+                messageEl.style.display = 'none';
+            }, 5000);
+        }
+
+        // Загрузка данных теста
+        async function loadTestDetails() {
+            const token = getToken();
+            const testData = localStorage.getItem('selectedTestDetails');
+            
+            if (!token) {
+                showMessage('Ошибка авторизации. Пожалуйста, войдите снова.', 'error');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            if (!testData) {
+                showMessage('Данные теста не найдены', 'error');
+                setTimeout(() => {
+                    window.location.href = 'profile.html';
+                }, 2000);
+                return;
+            }
+            
+            try {
+                const data = JSON.parse(testData);
+                displayTestDetails(data);
+                
+                // Если есть ID теста, можно дополнительно загрузить вопросы
+                if (data.testInfo && data.testInfo.testId) {
+                    await loadQuestionHistory(data.testInfo.testId, token);
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки данных:', error);
+                showMessage('Ошибка загрузки данных теста', 'error');
+            }
+        }
+
+        // Загрузка истории вопросов
+        async function loadQuestionHistory(testId, token) {
+            try {
+                const response = await fetch(`${API_URL}/results/${testId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.questionHistory) {
+                        displayAnswersHistory(data.questionHistory);
+                    }
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки вопросов:', error);
+            }
+        }
+
+        // Отображение деталей теста
+        function displayTestDetails(data) {
+            const testInfo = data.testInfo || data;
+            const stats = data.summary || {};
+            
+            // Основная информация
+            document.getElementById('testDate').textContent = `Дата прохождения: ${testInfo.date || testInfo.completed_at || 'Неизвестно'}`;
+            document.getElementById('totalScore').textContent = testInfo.score || testInfo.total_score || 0;
+            document.getElementById('totalQuestions').textContent = `из ${testInfo.total || testInfo.total_questions || 0} вопросов`;
+            document.getElementById('percentage').textContent = `${testInfo.percentage || 0}%`;
+            
+            // Время завершения
+            const timeEl = document.getElementById('completionTime');
+            if (testInfo.date) {
+                const timeMatch = testInfo.date.match(/\d{2}:\d{2}/);
+                timeEl.textContent = timeMatch ? timeMatch[0] : testInfo.date;
+            } else if (testInfo.completed_at) {
+                const timeParts = testInfo.completed_at.split(' ');
+                timeEl.textContent = timeParts.length > 1 ? timeParts[1] : testInfo.completed_at;
+            } else {
+                timeEl.textContent = '-';
+            }
+            
+            // Статистика правильных/неправильных
+            const correct = testInfo.score || testInfo.total_score || 0;
+            const total = testInfo.total || testInfo.total_questions || 0;
+            const incorrect = total - correct;
+            document.getElementById('correctCount').textContent = `${correct} правильных`;
+            document.getElementById('incorrectCount').textContent = `${incorrect} неправильных`;
+            
+            // Результаты по компетенциям
+            if (data.competenceResults && data.competenceResults.length > 0) {
+                displayCompetenceDetails(data.competenceResults);
+                createCompetenceChart(data.competenceResults);
+            } else {
+                document.getElementById('competenceChartSection').style.display = 'none';
+                document.getElementById('competenceDetailsSection').style.display = 'none';
+            }
+        }
+
+        // Отображение деталей по компетенциям
+        function displayCompetenceDetails(competences) {
+            const container = document.getElementById('competenceDetails');
+            container.innerHTML = '';
+            
+            competences.forEach(comp => {
+                const progress = parseFloat(comp.percentage) || 0;
+                
+                const compEl = document.createElement('div');
+                compEl.className = 'competence-card';
+                compEl.innerHTML = `
+                    <div class="competence-header">
+                        <h3>${comp.competence || 'Неизвестная компетенция'}</h3>
+                        <span class="competence-percentage">${comp.percentage || 0}%</span>
+                    </div>
+                    <div class="competence-stats">
+                        <span class="stat">${comp.score || 0} из ${comp.total_questions || 0} правильных</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                `;
+                
+                container.appendChild(compEl);
+            });
+        }
+
+        // Создание диаграммы компетенций
+        function createCompetenceChart(competences) {
+            const ctx = document.getElementById('competenceChart');
+            if (!ctx) return;
+            
+            const ctx2d = ctx.getContext('2d');
+            
+            if (competenceChart) {
+                competenceChart.destroy();
+            }
+            
+            const labels = competences.map(c => c.competence || 'Неизвестно');
+            const data = competences.map(c => parseFloat(c.percentage) || 0);
+            
+            competenceChart = new Chart(ctx2d, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Результат, %',
+                        data: data,
+                        backgroundColor: '#1e3a8a',
+                        borderColor: '#1e3a8a',
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0,0,0,0.05)'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                maxRotation: 45
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const comp = competences[context.dataIndex];
+                                    return [
+                                        `Результат: ${context.parsed.y}%`,
+                                        `Правильно: ${comp.score || 0} из ${comp.total_questions || 0}`
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Отображение истории ответов
+        function displayAnswersHistory(questions) {
+            const container = document.getElementById('answersHistory');
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            if (!questions || questions.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <p>История ответов недоступна для этого теста</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            questions.forEach((q, index) => {
+                const isCorrect = q.is_correct;
+                const statusClass = isCorrect ? 'status-correct' : 'status-incorrect';
+                const statusText = isCorrect ? 'Правильно' : 'Неправильно';
+                
+                const questionEl = document.createElement('div');
+                questionEl.className = 'answer-item';
+                
+                // Разделяем ответы пользователя и правильные ответы
+                const userAnswers = q.user_answers ? q.user_answers.split('; ') : [];
+                const correctAnswers = q.correct_answers ? q.correct_answers.split('; ') : [];
+                
+                questionEl.innerHTML = `
+                    <div class="answer-header">
+                        <div class="question-text">${q.question_text || 'Без текста'}</div>
+                        <div class="answer-status ${statusClass}">${statusText}</div>
+                    </div>
+                    <div class="answer-details">
+                        ${userAnswers.length > 0 ? `
+                            <div class="answers-list">
+                                <strong>Ваш ответ:</strong>
+                                ${userAnswers.map(answer => `
+                                    <div class="user-answer ${isCorrect ? 'correct' : 'incorrect'}">
+                                        ${answer}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        ` : '<p>Нет ответа</p>'}
+                        ${!isCorrect && correctAnswers.length > 0 ? `
+                            <div style="margin-top: 15px;">
+                                <strong>Правильный ответ:</strong>
+                                <div class="answers-list" style="margin-top: 5px;">
+                                    ${correctAnswers.map(answer => `
+                                        <div class="correct-answer">
+                                            ${answer}
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+                        <div class="competence-badge">${q.competence || 'Общее'}</div>
+                    </div>
+                `;
+                
+                container.appendChild(questionEl);
+            });
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            loadTestDetails();
+            
+            // Обработчики кнопок
+            document.querySelector('.back-btn')?.addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('selectedTestDetails');
+                window.location.href = 'profile.html';
+            });
+        });
+    </script>
+</body>
+</html>

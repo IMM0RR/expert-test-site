@@ -1,0 +1,427 @@
+/* Основные стили */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'sans-serif', system-ui;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #1a1a1a;
+    line-height: 1.6;
+}
+
+/* Шапка */
+header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.header-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 24px;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.back-btn, .retake-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    font-size: 16px;
+}
+
+.back-btn {
+    background: transparent;
+    color: #1e3a8a;
+    border: 1px solid #1e3a8a;
+}
+
+.retake-btn {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+}
+
+.back-btn:hover {
+    background: rgba(30, 58, 138, 0.1);
+}
+
+.retake-btn:hover {
+    background: #1d4ed8;
+}
+
+/* Основной контент */
+.results-main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 40px 5%;
+}
+
+.results-container {
+    background: white;
+    border-radius: 8px;
+    padding: 40px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.results-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.results-header h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-bottom: 10px;
+}
+
+.results-header p {
+    color: #1e3a8a;
+    font-size: 1rem;
+}
+
+/* Основные метрики */
+.main-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 50px;
+}
+
+.metric-card {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+}
+
+.metric-value {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 10px;
+    color: #1e3a8a;
+}
+
+.metric-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1e3a8a;
+    margin-bottom: 5px;
+}
+
+.metric-sub {
+    color: #1e3a8a;
+    font-size: 0.95rem;
+}
+
+/* Секции */
+.section {
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+.section h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    margin-bottom: 10px;
+}
+
+.section-subtitle {
+    color: #64748b;
+    margin-bottom: 25px;
+    font-size: 1rem;
+}
+
+/* Диаграмма */
+.chart-container {
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+    margin-top: 20px;
+    height: 500px;
+    position: relative;
+}
+
+/* Детали компетенций */
+.competence-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.competence-card {
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.competence-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.competence-header h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.competence-percentage {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e3a8a;
+}
+
+.progress-bar {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: #1e3a8a;
+    transition: width 0.5s ease;
+}
+
+.competence-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    color: #64748b;
+}
+
+/* История ответов */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.history-stats {
+    display: flex;
+    gap: 20px;
+}
+
+.correct-count {
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+.incorrect-count {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.answers-history {
+    margin-top: 20px;
+}
+
+.answer-item {
+    background: #f8fafc;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.answer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.question-text {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+    flex: 1;
+    margin-right: 15px;
+    margin-bottom: 15px;
+}
+
+.answer-status {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-correct {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-incorrect {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.answer-details {
+    margin-top: 15px;
+}
+
+.answers-list {
+    margin-top: 10px;
+}
+
+.user-answer {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin: 5px 0;
+}
+
+.correct-answer {
+    background: #f0fdf4;
+    color: #166534;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin: 5px 0;
+}
+
+.competence-badge {
+    display: inline-block;
+    background: rgba(30, 58, 138, 0.1);
+    color: #1e3a8a;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 10px;
+}
+
+/* Сообщения */
+.message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1500;
+    animation: slideIn 0.3s ease;
+    max-width: 400px;
+}
+
+.message.success {
+    background: #10b981;
+}
+
+.message.error {
+    background: #ef4444;
+}
+
+.message.info {
+    background: #3b82f6;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .results-container {
+        padding: 20px;
+    }
+    
+    .main-metrics {
+        grid-template-columns: 1fr;
+    }
+    
+    .metric-value {
+        font-size: 2.5rem;
+    }
+    
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .competence-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .answer-header {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .back-btn, .retake-btn {
+        width: 100%;
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .results-header h1 {
+        font-size: 1.8rem;
+    }
+    
+    .metric-card {
+        padding: 20px;
+    }
+    
+    .chart-container {
+        padding: 15px;
+        height: 250px;
+    }
+}

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ЭКСПЕРТ-ТЕСТ | Прохождение теста</title>
+    <link rel="stylesheet" href="test-active.css">
+    <link rel="icon" href="logo.png">
+</head>
+<body>
+    <!-- Шапка с прогрессом -->
+    <header>
+        <div class="header-container">
+            <div class="logo">
+                <span class="logo-text">ЭКСПЕРТ-ТЕСТ</span>
+            </div>
+            <div class="test-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">Вопрос 1 из 0</div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент теста -->
+    <main class="test-main">
+        <div class="test-container">
+            <div class="test-content-wrapper">
+                <!-- Сообщение если нет вопросов -->
+                <div id="noQuestionsMessage" style="display: none;">
+                    <div class="test-complete">
+                        <h2>Тест временно недоступен</h2>
+                        <p>В системе пока нет вопросов для тестирования.</p>
+                        <p>Администратор должен добавить вопросы через админ-панель.</p>
+                        <a href="profile.html" class="nav-btn" style="margin-top: 20px; display: inline-block;">Вернуться в профиль</a>
+                    </div>
+                </div>
+
+                <!-- Блок с вопросом -->
+                <div class="test-question-section" id="questionSection" style="display: none;">
+                    <div class="question-header">
+                        <h1>Тестирование по базовым компетенциям в цифровой сфере</h1>
+                        <p class="question-counter" id="questionCounter">Вопрос 1 из 0</p>
+                    </div>
+
+                    <div class="question-content">
+                        <div class="competence-badge" id="competenceBadge"></div>
+                        
+                        <h2 class="question-text" id="questionText">Загрузка вопроса...</h2>
+                        
+                        <div class="options-list" id="optionsList"></div>
+
+                        <div class="question-navigation">
+                            <button class="nav-btn prev-btn" id="prevBtn" disabled>Назад</button>
+                            <button class="nav-btn next-btn" id="nextBtn">Далее</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Навигация по вопросам -->
+                <div class="test-navigation-sidebar" id="navigationSidebar" style="display: none;">
+                    <div class="navigation-header">
+                        <h3>Вопросы теста</h3>
+                        <div class="navigation-stats">
+                            <span class="total-count" id="totalQuestions">Всего: 0</span>
+                            <span class="answered-count" id="answeredCount">Отвечено: 0</span>
+                        </div>
+                    </div>
+
+                    <div class="questions-navigation">
+                        <div class="questions-grid" id="questionsGrid"></div>
+                    </div>
+
+                    <div class="navigation-footer">
+                        <button class="submit-test-btn" id="submitTestBtn">Завершить тест</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Модальное окно подтверждения завершения -->
+    <div id="confirmModal" class="confirm-modal" style="display: none;">
+        <div class="modal-content">
+            <h3>Завершение теста</h3>
+            <p id="modalMessage">Вы уверены, что хотите завершить тест?</p>
+            <div class="modal-actions">
+                <button id="confirmSubmitBtn" class="modal-btn danger">Да, завершить</button>
+                <button id="cancelSubmitBtn" class="modal-btn cancel">Нет, вернуться</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Сообщения -->
+    <div id="message" class="message" style="display: none;"></div>
+
+    <script src="test-active.js"></script>
+</body>
+</html>
