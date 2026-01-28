@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             const token = getToken();
-            const response = await fetch('http://localhost:3000/api/results/all', {
+            const response = await fetch( window.location.origin + '/api/results/all', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`,
