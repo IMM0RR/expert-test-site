@@ -1,5 +1,5 @@
 // URL API
-const API_URL = 'http://localhost:3000/api';
+const API_URL =  window.location.origin + '/api';
 let currentQuestionId = null;
 let currentQuestionAnswers = [];
 
