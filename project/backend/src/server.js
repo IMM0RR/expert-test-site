@@ -32,48 +32,39 @@ app.set('json spaces', 2);
 app.use(express.json());
 
 // ========== СТАТИЧЕСКИЕ ФАЙЛЫ ФРОНТЕНДА ==========
-// Раздаем статические файлы из папки frontend
-app.use(express.static(path.join(__dirname, '..', 'frontend')));
+app.use(express.static(path.join(__dirname, 'frontend')));
 
-// ========== МАРШРУТЫ ФРОНТЕНДА (HTML СТРАНИЦЫ) ==========
-// Главная страница
+// ========== МАРШРУТЫ ФРОНТЕНДА ==========
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
 });
 
-// Страница логина
 app.get('/login', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'login.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'login.html'));
 });
 
-// Страница регистрации
 app.get('/register', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'register.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'register.html'));
 });
 
-// Страница профиля
 app.get('/profile', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'profile.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'profile.html'));
 });
 
-// Админка
 app.get('/admin', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'admin.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'admin.html'));
 });
 
-// Активный тест
 app.get('/test-active', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'test-active.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'test-active.html'));
 });
 
-// Результаты
 app.get('/results', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'results.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'results.html'));
 });
 
-// Детали теста
 app.get('/test-details', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'frontend', 'test-details.html'));
+  res.sendFile(path.join(__dirname, 'frontend', 'test-details.html'));
 });
 
 // ========== ЛОГИРОВАНИЕ ЗАПРОСОВ ==========
@@ -137,10 +128,10 @@ app.get('*', (req, res) => {
       message: 'API маршрут не найден'
     });
   } else {
-    const requestedFile = path.join(__dirname, '..', 'frontend', req.path);
+    const requestedFile = path.join(__dirname, 'frontend', req.path);
     res.sendFile(requestedFile, (err) => {
       if (err) {
-        res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+        res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
       }
     });
   }
