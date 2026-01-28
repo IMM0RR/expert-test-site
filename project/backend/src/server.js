@@ -79,7 +79,7 @@ app.get('/test-details', (req, res) => {
 // ========== ЛОГИРОВАНИЕ ЗАПРОСОВ ==========
 app.use((req, res, next) => {
   const time = new Date().toISOString().split('T')[1].split('.')[0];
-  console.log(${time} - ${req.method} ${req.url});
+
   next();
 });
 
@@ -128,4 +128,41 @@ app.use('/api/*', (req, res) => {
     success: false,
     message: 'API маршрут не найден'
   });
+});
+// ========== FALLBACK ДЛЯ ФРОНТЕНДА (SPA) ==========
+app.get('*', (req, res) => {
+  if (req.path.startsWith('/api/')) {
+    res.status(404).json({
+      success: false,
+      message: 'API маршрут не найден'
+    });
+  } else {
+    const requestedFile = path.join(__dirname, '..', 'frontend', req.path);
+    res.sendFile(requestedFile, (err) => {
+      if (err) {
+        res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+      }
+    });
+  }
+});
+
+// ========== ЗАПУСК СЕРВЕРА ==========
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  // console.log('='.repeat(60));
+  // console.log(🚀 Сервер ЭКСПЕРТ-ТЕСТ запущен на порту ${PORT});
+  // console.log('');
+  // console.log('   📁 Фронтенд:');
+  // console.log(   👉 Главная: "http://localhost:${PORT}/");
+  // console.log(   👉 Логин: "http://localhost:${PORT}/login");
+  // console.log(   👉 Регистрация: "http:"//localhost:${PORT}/register""");
+  // console.log(   👉 Профиль: http://localhost:${PORT}/profile);
+  // console.log(   👉 Админка: http://localhost:${PORT}/admin);
+  // console.log('');
+  // console.log('   🔧 API:');
+  // console.log(   👉 API Docs: http://localhost:${PORT}/api);
+  // console.log(   👉 Регистрация: POST http://localhost:${PORT}/api/auth/register);
+  // console.log(   👉 Логин: POST http://localhost:${PORT}/api/auth/login);
+  // console.log('');
+  // console.log('='.repeat(60));
 });
