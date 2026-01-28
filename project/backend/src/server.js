@@ -2,6 +2,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/authRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import adminRoutes from './routes/adminRoutes.js';
@@ -11,9 +13,13 @@ import profileRoutes from './routes/profileRoutes.js';
 
 dotenv.config();
 
+// Получаем __dirname в ES модулях
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 
-// CORS - разрешаем доступ с любых источников (для локальных файлов)
+// CORS - разрешаем доступ с любых источников
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'],
@@ -21,30 +27,72 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-
-
 // JSON форматирование
 app.set('json spaces', 2);
 app.use(express.json());
+
+// ========== СТАТИЧЕСКИЕ ФАЙЛЫ ФРОНТЕНДА ==========
+// Раздаем статические файлы из папки frontend
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
+
+// ========== МАРШРУТЫ ФРОНТЕНДА (HTML СТРАНИЦЫ) ==========
+// Главная страница
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'index.html'));
+});
+
+// Страница логина
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'login.html'));
+});
+
+// Страница регистрации
+app.get('/register', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'register.html'));
+});
+
+// Страница профиля
+app.get('/profile', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'profile.html'));
+});
+
+// Админка
+app.get('/admin', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'admin.html'));
+});
+
+// Активный тест
+app.get('/test-active', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'test-active.html'));
+});
+
+// Результаты
+app.get('/results', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'results.html'));
+});
+
+// Детали теста
+app.get('/test-details', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'frontend', 'test-details.html'));
+});
+
+// ========== ЛОГИРОВАНИЕ ЗАПРОСОВ ==========
+app.use((req, res, next) => {
+  const time = new Date().toISOString().split('T')[1].split('.')[0];
+  console.log(${time} - ${req.method} ${req.url});
+  next();
+});
+
+// ========== API МАРШРУТЫ ==========
 app.use('/api/admin', adminRoutes);
 app.use('/api/test', testRoutes);
 app.use('/api/results', resultsRoutes);
 app.use('/api/profile', profileRoutes);
-
-
-// Логирование запросов
-app.use((req, res, next) => {
-  const time = new Date().toISOString().split('T')[1].split('.')[0];
-  console.log(`${time} - ${req.method} ${req.url}`);
-  next();
-});
-
-// Маршруты API
 app.use('/api/auth', authRoutes);
 app.use('/api', userRoutes);
 
-// Корневой маршрут для проверки
-app.get('/', (req, res) => {
+// ========== КОРНЕВОЙ МАРШРУТ API (резервный) ==========
+app.get('/api', (req, res) => {
   res.json({
     success: true,
     message: 'API сервер ЭКСПЕРТ-ТЕСТ работает!',
@@ -59,43 +107,25 @@ app.get('/', (req, res) => {
         all: 'GET /api/users (только админ)',
         test: 'GET /api/test',
         dbTest: 'GET /api/db-test'
+      },
+      frontend: {
+        home: 'GET /',
+        login: 'GET /login',
+        register: 'GET /register',
+        profile: 'GET /profile',
+        admin: 'GET /admin',
+        testActive: 'GET /test-active',
+        results: 'GET /results',
+        testDetails: 'GET /test-details'
       }
     }
   });
 });
 
-// Обработка 404 для API маршрутов
-app.use('*', (req, res) => {
+// ========== ОБРАБОТКА 404 ДЛЯ API ==========
+app.use('/api/*', (req, res) => {
   res.status(404).json({
     success: false,
     message: 'API маршрут не найден'
   });
-});
-
-// Запуск сервера
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log('='.repeat(60));
-  console.log(`🚀 API сервер ЭКСПЕРТ-ТЕСТ запущен на порту ${PORT}`);
-  console.log(`👉 API: http://localhost:${PORT}/api/...`);
-  console.log('');
-  console.log('   📋 Основные endpoints:');
-  console.log('');
-  console.log('   🔐 Аутентификация:');
-  console.log(`   POST  /api/auth/register`);
-  console.log(`   POST  /api/auth/login`);
-  console.log('');
-  console.log('   👤 Пользователи:');
-  console.log(`   GET   /api/me           (требует токен)`);
-  console.log(`   GET   /api/users        (только админ)`);
-  console.log(`   GET   /api/test`);
-  console.log(`   GET   /api/db-test`);
-  console.log('');
-  console.log('   📁 Фронтенд:');
-  console.log('   Открывайте HTML файлы двойным кликом');
-  console.log('   Они будут обращаться к этому серверу');
-  console.log('');
-  console.log('='.repeat(60));
-  console.log(`   🔧 Админка: /api/admin/* (только для админов)`);
-  console.log(`   📊 Результаты: /api/results/*`);
 });
